@@ -9,13 +9,6 @@ var (
 	fetchTitleState = true
 )
 
-func isWhite(c string) bool {
-	if c == " " || c == "\t" || c == "\n" {
-		return true
-	}
-	return false
-}
-
 func doCmd(cmd string, args []string) string {
 	switch cmd {
 	case "toggleTitleFetch":
