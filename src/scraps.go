@@ -29,6 +29,13 @@ func checkDataDir(ddir string) bool {
 	return true
 }
 
+func isWhite(c string) bool {
+	if c == " " || c == "\t" || c == "\n" {
+		return true
+	}
+	return false
+}
+
 func getFortune(file string) string {
 	cnt, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -38,4 +45,56 @@ func getFortune(file string) string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	spl := strings.Split(string(cnt), "\n")
 	return spl[r.Intn(len(spl)-1)]
+}
+
+// A bit messy-like.
+func getEpigram(file, arg string) string {
+	cnt, err := ioutil.ReadFile(file)
+	if err != nil {
+		stderr(err)
+		return ""
+	}
+
+	var (
+		args = strings.Split(strings.TrimPrefix(arg, " "), " ")
+		epis = strings.Split(string(cnt), "\n")
+		r    = rand.New(rand.NewSource(time.Now().UnixNano()))
+	)
+
+	if len(args) == 0 {
+		return epis[r.Intn(len(epis)-1)]
+	}
+
+	var (
+		matches    []string
+		matchCount = 0
+		maxMatch   = 0
+	)
+
+	for _, ep := range epis {
+		matchCount = 0
+		for _, a := range args {
+			if len(a) > 0 && !isWhite(a) {
+				if strings.Contains(strings.ToLower(ep), a) {
+					matchCount++
+				}
+			}
+		}
+		if matchCount == maxMatch {
+			matches = append(matches, ep)
+		}
+		if matchCount > maxMatch {
+			maxMatch = matchCount
+			matches = []string{}
+			matches = append(matches, ep)
+		}
+	}
+	if len(matches) == 0 {
+		return epis[r.Intn(len(epis)-1)]
+	}
+	if len(matches) == 1 {
+		return matches[0]
+	}
+
+	return matches[r.Intn(len(matches)-1)]
 }

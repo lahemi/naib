@@ -27,6 +27,7 @@ var (
 	dataDir = os.Getenv("HOME") + "/.crude"
 
 	fortuneFile = dataDir + "/fortunes.txt"
+	epiFile     = dataDir + "/epigrams.txt"
 )
 
 func sendToCan(can, line string) {
@@ -120,10 +121,16 @@ func handleBotCmds(s string) {
 			sendToCan(ml.Target, EMOTES.Pick())
 		case linest == "nope":
 			sendToCan(ml.Target, NOPES.Pick())
+			// Generalize these two
 		case linest == "fortune":
 			fort := getFortune(fortuneFile)
 			if fort != "" {
 				sendToCan(ml.Target, fort)
+			}
+		case strings.HasPrefix(linest, "epigram"):
+			epigram := getEpigram(epiFile, linest[7:])
+			if epigram != "" {
+				sendToCan(ml.Target, epigram)
 			}
 		}
 	default:
