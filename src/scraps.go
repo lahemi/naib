@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+    "os/exec"
 	"strings"
 	"time"
 )
@@ -97,4 +98,13 @@ func getEpigram(file, arg string) string {
 	}
 
 	return matches[r.Intn(len(matches)-1)]
+}
+
+
+func doCallang(cmd string) string {
+    out, err := exec.Command("callang", "-s", cmd).Output()
+    if err != nil {
+        return ""
+    }
+    return string(out)
 }

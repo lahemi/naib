@@ -132,6 +132,11 @@ func handleBotCmds(s string) {
 			if epigram != "" {
 				sendToCan(ml.Target, epigram)
 			}
+        case strings.HasPrefix(linest, "callang"):
+            out := doCallang(linest[7:])
+            if out != "" {
+                sendToCan(ml.Target, out)
+            }
 		}
 	default:
 		if !fetchTitleState {
