@@ -121,22 +121,21 @@ func handleBotCmds(s string) {
 			sendToCan(ml.Target, EMOTES.Pick())
 		case linest == "nope":
 			sendToCan(ml.Target, NOPES.Pick())
-			// Generalize these two
-		case linest == "fortune":
-			fort := getFortune(fortuneFile)
+		case strings.HasPrefix(linest, "fortune"):
+			fort := lineWithOptionalMatch(fortuneFile, linest[7:])
 			if fort != "" {
 				sendToCan(ml.Target, fort)
 			}
 		case strings.HasPrefix(linest, "epigram"):
-			epigram := getEpigram(epiFile, linest[7:])
+			epigram := lineWithOptionalMatch(epiFile, linest[7:])
 			if epigram != "" {
 				sendToCan(ml.Target, epigram)
 			}
-        case strings.HasPrefix(linest, "callang"):
-            out := doCallang(linest[7:])
-            if out != "" {
-                sendToCan(ml.Target, out)
-            }
+		case strings.HasPrefix(linest, "callang"):
+			out := doCallang(linest[7:])
+			if out != "" {
+				sendToCan(ml.Target, out)
+			}
 		}
 	default:
 		if !fetchTitleState {

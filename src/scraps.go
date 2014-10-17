@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
-    "os/exec"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -37,19 +37,7 @@ func isWhite(c string) bool {
 	return false
 }
 
-func getFortune(file string) string {
-	cnt, err := ioutil.ReadFile(file)
-	if err != nil {
-		stderr(err)
-		return ""
-	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	spl := strings.Split(string(cnt), "\n")
-	return spl[r.Intn(len(spl)-1)]
-}
-
-// A bit messy-like.
-func getEpigram(file, arg string) string {
+func lineWithOptionalMatch(file, arg string) string {
 	cnt, err := ioutil.ReadFile(file)
 	if err != nil {
 		stderr(err)
@@ -57,13 +45,13 @@ func getEpigram(file, arg string) string {
 	}
 
 	var (
-		args = strings.Split(strings.TrimPrefix(arg, " "), " ")
-		epis = strings.Split(string(cnt), "\n")
-		r    = rand.New(rand.NewSource(time.Now().UnixNano()))
+		args  = strings.Split(strings.TrimPrefix(arg, " "), " ")
+		lines = strings.Split(string(cnt), "\n")
+		r     = rand.New(rand.NewSource(time.Now().UnixNano()))
 	)
 
 	if len(args) == 0 {
-		return epis[r.Intn(len(epis)-1)]
+		return lines[r.Intn(len(lines)-1)]
 	}
 
 	var (
@@ -72,7 +60,7 @@ func getEpigram(file, arg string) string {
 		maxMatch   = 0
 	)
 
-	for _, ep := range epis {
+	for _, ep := range lines {
 		matchCount = 0
 		for _, a := range args {
 			if len(a) > 0 && !isWhite(a) {
@@ -91,7 +79,7 @@ func getEpigram(file, arg string) string {
 		}
 	}
 	if len(matches) == 0 {
-		return epis[r.Intn(len(epis)-1)]
+		return lines[r.Intn(len(lines)-1)]
 	}
 	if len(matches) == 1 {
 		return matches[0]
@@ -100,11 +88,10 @@ func getEpigram(file, arg string) string {
 	return matches[r.Intn(len(matches)-1)]
 }
 
-
 func doCallang(cmd string) string {
-    out, err := exec.Command("callang", "-s", cmd).Output()
-    if err != nil {
-        return ""
-    }
-    return string(out)
+	out, err := exec.Command("callang", "-s", cmd).Output()
+	if err != nil {
+		return ""
+	}
+	return string(out)
 }
