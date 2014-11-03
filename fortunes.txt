@@ -100,3 +100,25 @@ Ignore the fatal errors.  It's O.K.
 Panics, panics everywhere!
 Id excrementum tauri est.
 Doge is love, doge is life.
+Everything is a file. Friends are files too.
+Fail fast, fail often and fail hard.
+A failure may seem like a dead-end, but it could be a slip-road on to the freeway of dreams.
+Java is the COBOL of the 21st century.
+"You can either eat a one pound steak or hundred pounds of shoe-leather; after the latter you have a greater sense of accomplishment, but maybe there's some downsides, too." -Larry Wall, on Java
+Ed is the standard text editor.
+"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." -Sun Tzu, The Art of War
+"Religion is the opium of the people." -Karl Marx
+"Words build bridges into unexplored regions." -Adolf Hitler
+"The writer is the engineer of the human soul." -Joseph Stalin
+"Peace secured by slavish submission is not peace." -Kim Il-seong
+"I have sworn to only live free. Even if I find bitter the taste of death, I don't want to die humiliated or deceived." -Osama Bin Laden
+"Inactivity is death." -Benito Mussolini
+"An action commited in anger is an action doomed to failure." -Genghis Khan
+"He who stops being better stops being good." -Oliver Cromwell
+"It takes less courage to criticize the decisions of others than to stand by your own." -Attila the Hun
+"If we knew the meaning to everything that is happening to us, then there would be no meaning." -Idi Amin
+"Faith moves mountains, but only knowledge moves them to the right place..." -Joseph Goebbels
+"I call on you not to hate, because hate does not leave space for a person to be fair and it makes you blind and closes all doors of thinking." -Saddam Hussein
+"Can a nation be free if it oppresses other nations? It cannot." -Vladimir Lenin
+"My honor is my loyalty." -Heinrich Himmler
+"The secret of freedom lies in educating people, whereas the secret of tyranny is in keeping them ignorant." -Maximilien Robespierre
