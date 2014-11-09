@@ -28,7 +28,7 @@ var (
 
 	fortuneFile = dataDir + "/fortunes.txt"
 	epiFile     = dataDir + "/epigrams.txt"
-    savedUrls   = dataDir + "/savedUrls.txt"
+	savedUrls   = dataDir + "/savedUrls.txt"
 )
 
 func sendToCan(can, line string) {
@@ -137,11 +137,11 @@ func handleBotCmds(s string) {
 			if out != "" {
 				sendToCan(ml.Target, out)
 			}
-        case strings.HasPrefix(linest, "save"):
-            out := saveUrl(linest[4:], savedUrls)
-            if out != "" {
-                sendToCan(ml.Target, out)
-            }
+		case strings.HasPrefix(linest, "save"):
+			out := saveUrl(linest[4:], savedUrls)
+			if out != "" {
+				stdout(ml.Target, out)
+			}
 		}
 	default:
 		if !fetchTitleState {
