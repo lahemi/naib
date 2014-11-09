@@ -121,7 +121,7 @@ func saveUrl(url, file string) string {
 
 	if _, err = f.WriteString(content); err != nil {
 		stderr(err)
-        return "Write failed."
+		return "Write failed."
 	}
 
 	return "Url '" + title + "' is now saved"
