@@ -95,3 +95,34 @@ func doCallang(cmd string) string {
 	}
 	return string(out)
 }
+
+// "What was that one site..."
+// Let's save some urls and titles
+// - Antti-Ville Jokela
+func saveUrl(url, file string) string {
+	// First, let's get that title
+	if len(url) < 2 {
+		return "No url found"
+	}
+
+	// One option is to check here that title is
+	// not empty - will be ignored for now
+	url = strings.Trim(url, " ")
+	title := fetchTitle(url)
+
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		stderr(err)
+	}
+
+	defer f.Close()
+
+	content := title + " : " + url + "\n"
+
+	if _, err = f.WriteString(content); err != nil {
+		stderr(err)
+		return "Write failed."
+	}
+
+	return "Url '" + title + "' is now saved"
+}

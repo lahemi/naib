@@ -28,6 +28,7 @@ var (
 
 	fortuneFile = dataDir + "/fortunes.txt"
 	epiFile     = dataDir + "/epigrams.txt"
+	savedUrls   = dataDir + "/savedUrls.txt"
 )
 
 func sendToCan(can, line string) {
@@ -135,6 +136,11 @@ func handleBotCmds(s string) {
 			out := doCallang(linest[7:])
 			if out != "" {
 				sendToCan(ml.Target, out)
+			}
+		case strings.HasPrefix(linest, "save"):
+			out := saveUrl(linest[4:], savedUrls)
+			if out != "" {
+				stdout(out)
 			}
 		}
 	default:
