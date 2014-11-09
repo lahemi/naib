@@ -140,7 +140,7 @@ func handleBotCmds(s string) {
 		case strings.HasPrefix(linest, "save"):
 			out := saveUrl(linest[4:], savedUrls)
 			if out != "" {
-				stdout(ml.Target, out)
+				stdout(out)
 			}
 		}
 	default:
