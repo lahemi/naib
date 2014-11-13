@@ -22,13 +22,19 @@ var (
 	cmdPrefix         = "˙"
 	interactCmdPrefix = "("
 
-	overLord = "" // You
-
 	dataDir = os.Getenv("HOME") + "/.crude"
+
+	startUpConfigFile = dataDir + "/naib.conf"
 
 	fortuneFile = dataDir + "/fortunes.txt"
 	epiFile     = dataDir + "/epigrams.txt"
-	savedUrls   = dataDir + "/savedUrls.txt"
+	savedURLs   = dataDir + "/savedURLs.txt"
+
+	overlord       string
+	nick           string
+	server         string
+	port           string
+	channelsToJoin []string
 )
 
 func sendToCan(can, line string) {
@@ -104,9 +110,11 @@ func handleBotCmds(s string) {
 	}
 	ml := splitMsgLine(s)
 
-	if ml.Nick == overLord && ml.Msg == cmdPrefix+"die" {
+	if ml.Nick == overlord && ml.Msg == cmdPrefix+"die" {
 		sendToCan(ml.Target, DIED.Pick())
-		// BAD, use a sync.WaitGroup maybe ?
+		// No harm done even though we use this - it's just a little
+		// silly thing that makes it usually possible for the bot
+		// to send a `dying` emoticon to the `killer` before QUITting.
 		time.Sleep(time.Duration(1) * time.Second)
 		writechan <- "QUIT"
 		os.Exit(0)
@@ -138,7 +146,7 @@ func handleBotCmds(s string) {
 				sendToCan(ml.Target, out)
 			}
 		case strings.HasPrefix(linest, "save"):
-			out := saveUrl(linest[4:], savedUrls)
+			out := saveUrl(linest[4:], savedURLs)
 			if out != "" {
 				stdout(out)
 			}
@@ -166,24 +174,51 @@ func handleInteractiveCmds(cmdline string) {
 	eval(parse(cmdline))
 }
 
-func main() {
-
-	if !checkDataDir(dataDir) {
-		if e := os.Mkdir(dataDir, 0755); e != nil {
-			stderr("unable to create data dir")
+func init() {
+	if fi, err := os.Stat(dataDir); err != nil {
+		if err := os.Mkdir(dataDir, 0777); err != nil {
+			die("Unable to create " + dataDir)
 		}
 		stdout("Initialization, data|config dir " + dataDir + " created.")
+	} else if !fi.Mode().IsDir() {
+		die("There is a file with the same name as the " + dataDir + " already present.")
+	}
+	if _, err := os.Stat(savedURLs); err != nil {
+		fd, err := os.Create(savedURLs)
+		if err != nil {
+			die("Failed to create " + savedURLs)
+		}
+		fd.Close() // Ensures the fd will be freed.
 	}
 
-	var (
-		server = "irc.freenode.net"
-		port   = "6667"
-		nick   = "gecannels"
-	)
+	if fi, err := os.Stat(startUpConfigFile); err == nil && fi.Mode().IsRegular() {
+		configs := loadStartUpConfig(startUpConfigFile)
+		n := configs["nick"]
+		s := configs["server"]
+		p := configs["port"]
+		o := configs["overlord"]
+		c := configs["channels"]
 
+		// Should add error checks and either default values
+		// or a `die` with a message what is needed.
+		nick = n.Pop().(string)
+		server = s.Pop().(string)
+		port = p.Pop().(string)
+		overlord = o.Pop().(string)
+		for {
+			ch, e := c.PopE()
+			if e != nil {
+				break
+			}
+			channelsToJoin = append(channelsToJoin, ch.(string))
+		}
+	}
+}
+
+func main() {
 	conn, err := net.Dial("tcp", server+":"+port)
 	if err != nil {
-		panic(err)
+		die(err)
 	}
 	r := bufio.NewReader(conn)
 	w := bufio.NewWriter(conn)
@@ -218,6 +253,9 @@ func main() {
 
 	writechan <- "USER " + nick + " * * :" + nick
 	writechan <- "NICK " + nick
+	for _, c := range channelsToJoin {
+		writechan <- "JOIN " + c
+	}
 
 	for {
 		input, err := in.ReadString('\n')

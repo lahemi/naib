@@ -1,0 +1,42 @@
+
+urlsaver:
+    format ?
+
+    url, title, key|search words, timestamp(UNIX), category
+
+    search. if more than one result, use pastecan
+
+
+
+init(), check if files exist, if not, generate them             done
+
+
+start-up config file                                            done
+
+
+continue the interactive mode
+
+
+ignore reserved urls
+
+
+command to show in which port
+services are running(pastecan,filecan,fserve,datacan?)
+
+
+user privileges
+
+
+Sidenote:
+    A massive datacollection bot,
+    which just joins to a plethora
+    of channels and collects all them data.
+
+
+
+privileges:
+    0:  overlord
+    1:  privileged
+    2:  buorgeois
+    3:  pauper
+

@@ -23,11 +23,9 @@ func stderr(str ...interface{}) {
 	fmt.Fprintln(os.Stderr, "%s %v\n", clock(), str)
 }
 
-func checkDataDir(ddir string) bool {
-	if f, e := os.Stat(ddir); e != nil || !f.IsDir() {
-		return false
-	}
-	return true
+func die(str ...interface{}) {
+	stderr(str)
+	os.Exit(1)
 }
 
 func isWhite(c string) bool {
@@ -113,8 +111,8 @@ func saveUrl(url, file string) string {
 	f, err := os.OpenFile(file, os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		stderr(err)
+		return "Failed to open file: " + file
 	}
-
 	defer f.Close()
 
 	content := title + " : " + url + "\n"

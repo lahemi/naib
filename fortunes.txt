@@ -152,3 +152,5 @@ When there's a will, I want to be in it.
 Change is inevitable, except from a vending machine.
 WinErr: 001 Windows loaded - System in danger
 WinErr: 003 Dynamic linking error - Your mistake is now in every file
+go fmt or go away.
+Sometimes, re-inventing the wheel helps you understand how the wheel was made in the first place.
