@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/lahemi/stack"
 )
 
 var (
@@ -30,39 +32,38 @@ func doCmd(cmd string, args []string) string {
 	return ""
 }
 
-func parse(text string) StrStack {
+func parse(text string) (ret []string) {
 	var (
 		spl = strings.Split(text, "") // for utf-8 chars
 
 		sexpS = "("
 		sexpE = ")"
 		buf   string
-
-		sstack = StrStack{}
 	)
 
 	for i := 0; i < len(spl); i++ {
 		c := spl[i]
 		switch {
 		case isWhite(c) && buf != "":
-			sstack.Push(buf)
+			ret = append(ret, buf)
 			buf = ""
 		case isWhite(c):
 		case c == sexpS || c == sexpE:
 			if buf != "" {
-				sstack.Push(buf)
+				ret = append(ret, buf)
 				buf = ""
 			}
-			sstack.Push(c)
+			ret = append(ret, c)
 		default:
 			buf += c
 		}
 	}
 
-	return sstack
+	return
 }
 
-func eval(sstack StrStack) {
+// Need to be rewritten due to silly, unclear and fragile code.
+func eval(ss []string) {
 	var (
 		sexpS     = "("
 		sexpE     = ")"
@@ -70,29 +71,30 @@ func eval(sstack StrStack) {
 
 		cmd    string
 		args   []string
-		istack = IntStack{}
+		istack = stack.Stack{}
 	)
 
-	for i := 0; i < len(sstack); i++ {
+	for i := 0; i < len(ss); i++ {
+		s := ss[i]
 		switch {
-		case sstack[i] == sexpS:
+		case s == sexpS:
 			last_expr = sexpS
 			istack.Push(i)
-		case sstack[i] == sexpE && last_expr == sexpS:
-			m := istack.Pop()
-			// Bad error handling here.
-			if m == -0xffffffff {
+		case s == sexpE && last_expr == sexpS:
+			m, e := istack.PopE()
+			if e != nil {
 				break
 			}
-			cmd = sstack[m+1]
-			args = sstack[m+2 : i]
+			n := m.(int)
+			cmd = ss[n+1]
+			args = ss[n+2 : i]
 			r := doCmd(cmd, args)
-			sstack = sstack[:m+1]
+			ss = ss[:n+1]
 			if r != "" {
-				sstack[m] = r
+				ss[n] = r
 			}
 			i = 0
-			sstack.Push(")")
+			ss = append(ss, ")")
 		}
 	}
 }
