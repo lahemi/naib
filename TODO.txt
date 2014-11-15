@@ -6,6 +6,11 @@ urlsaver:
 
     search. if more than one result, use pastecan
 
+    SQLite3:
+        check for existance of db file      done
+        create tables                       done
+        save everything
+
 
 
 init(), check if files exist, if not, generate them             done
@@ -34,6 +39,7 @@ Sidenote:
 
 
 
+Maybn ?
 privileges:
     0:  overlord
     1:  privileged

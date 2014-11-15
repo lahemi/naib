@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"database/sql"
 	"io"
 	"net"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -29,6 +32,7 @@ var (
 	fortuneFile = dataDir + "/fortunes.txt"
 	epiFile     = dataDir + "/epigrams.txt"
 	savedURLs   = dataDir + "/savedURLs.txt"
+	dbFile      = dataDir + "/links.db"
 
 	overlord       string
 	nick           string
@@ -211,6 +215,33 @@ func init() {
 				break
 			}
 			channelsToJoin = append(channelsToJoin, ch.(string))
+		}
+	}
+
+	if _, err := os.Stat(dbFile); err != nil {
+		db, err := sql.Open("sqlite3", dbFile)
+		if err != nil {
+			die("Failed to create db file: " + dbFile)
+		}
+		defer db.Close()
+		if _, err = db.Exec(`
+            CREATE TABLE IF NOT EXISTS links (
+                id INTEGER NOT NULL PRIMARY KEY,
+                url TEXT NOT NULL,
+                title TEXT,
+                time INTEGER, -- UNIX timestamp
+                category TEXT,
+                FOREIGN KEY(category) REFERENCES categories(category)
+            );
+            CREATE TABLE IF NOT EXISTS categories (
+                category TEXT PRIMARY KEY
+            );
+            INSERT INTO categories VALUES('music');
+            INSERT INTO categories VALUES('img');
+            INSERT INTO categories VALUES('lulz');
+            INSERT INTO categories VALUES('info');
+        `); err != nil {
+			die("Failed to execute SQLite3.")
 		}
 	}
 }
