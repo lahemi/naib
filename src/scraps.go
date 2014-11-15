@@ -20,7 +20,7 @@ func stdout(str ...interface{}) {
 }
 
 func stderr(str ...interface{}) {
-	fmt.Fprintln(os.Stderr, "%s %v\n", clock(), str)
+	fmt.Fprintf(os.Stderr, "%s %v\n", clock(), str)
 }
 
 func die(str ...interface{}) {
