@@ -9,7 +9,7 @@ urlsaver:
     SQLite3:
         check for existance of db file      done
         create tables                       done
-        save everything
+        save everything                     done
 
 
 

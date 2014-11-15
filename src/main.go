@@ -3,9 +3,7 @@ package main
 import (
 	"bufio"
 	"database/sql"
-	"io"
 	"net"
-	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -51,6 +49,12 @@ type MsgLine struct {
 	Nick, Cmd, Target, Msg string
 }
 
+type DBFields struct {
+	url, title string
+	timestamp  int64
+	category   string
+}
+
 func splitMsgLine(l string) MsgLine {
 	spl := strings.SplitN(l, " ", 4)
 	return MsgLine{
@@ -68,45 +72,6 @@ func handleOut(s string) {
 		stdout(ml.Nick + sep + ml.Target + sep + ml.Msg)
 	} else {
 		stdout(s)
-	}
-}
-
-func fetchTitle(msgWord string) string {
-	resp, err := http.Get(msgWord)
-	if err != nil {
-		stderr("Nope at GETing " + msgWord)
-		return ""
-	}
-	val := resp.Header.Get("Content-Type")
-	if val == "" || !strings.Contains(val, "text/html") {
-		return ""
-	}
-	var buf string
-	reader := bufio.NewReader(resp.Body)
-	for {
-		word, err := reader.ReadBytes(' ')
-		if err != nil {
-			stderr("Nope at reading the site " + string(word))
-			return ""
-		}
-		if err == io.EOF {
-			break
-		}
-		buf += string(word)
-		if m, _ := regexp.MatchString(".*(?i:</title>).*?", string(word)); m {
-			break
-		}
-		if len(buf) > 8192 {
-			break
-		}
-	}
-	titleMatch := titlerex.FindStringSubmatch(buf)
-	if len(titleMatch) == 2 {
-		stdout(len(buf))
-		return titleMatch[1]
-	} else {
-		stdout("No title found")
-		return ""
 	}
 }
 
@@ -158,9 +123,6 @@ func handleBotCmds(s string) {
 			}
 		}
 	default:
-		if !fetchTitleState {
-			return
-		}
 		if !strings.Contains(ml.Msg, "http") {
 			return
 		}
@@ -168,9 +130,14 @@ func handleBotCmds(s string) {
 			if !urlrex.MatchString(w) {
 				continue
 			}
-			if title := fetchTitle(w); title != "" {
+			title := fetchTitle(w)
+			if title != "" {
+				if !fetchTitleState {
+					continue
+				}
 				sendToCan(ml.Target, title)
 			}
+			saveLinksToDB(DBFields{url: w, title: title})
 		}
 	}
 }
@@ -246,7 +213,7 @@ func init() {
                 id INTEGER NOT NULL PRIMARY KEY,
                 url TEXT NOT NULL,
                 title TEXT,
-                time INTEGER NOT NULL, -- UNIX timestamp
+                timestamp INTEGER NOT NULL, -- UNIX timestamp
                 category TEXT,
                 FOREIGN KEY(category) REFERENCES categories(category)
             );
@@ -257,6 +224,7 @@ func init() {
             INSERT INTO categories VALUES('img');
             INSERT INTO categories VALUES('lulz');
             INSERT INTO categories VALUES('info');
+            INSERT INTO categories VALUES('blank'); -- for no category
         `); err != nil {
 			die("Failed to execute SQLite3.")
 		}
