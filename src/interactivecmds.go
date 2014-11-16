@@ -11,6 +11,7 @@ var (
 	fetchTitleState = true
 )
 
+// Change this to use the map in cmds.go
 func doCmd(cmd string, args []string) string {
 	switch cmd {
 	case "toggleTitleFetch":

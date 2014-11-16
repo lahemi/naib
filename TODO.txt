@@ -20,6 +20,7 @@ start-up config file                                            done
 
 
 continue the interactive mode
+    it needs to use the CMDS map for looking up commands
 
 
 ignore reserved urls
@@ -39,7 +40,7 @@ Sidenote:
 
 
 
-Maybn ?
+Maybe ?
 privileges:
     0:  overlord
     1:  privileged

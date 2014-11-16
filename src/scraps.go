@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"os/exec"
 	"regexp"
 	"strings"
 	"time"
@@ -93,18 +92,10 @@ func lineWithOptionalMatch(file, arg string) string {
 	return matches[r.Intn(len(matches)-1)]
 }
 
-func doCallang(cmd string) string {
-	out, err := exec.Command("callang", "-s", cmd).Output()
-	if err != nil {
-		return ""
-	}
-	return string(out)
-}
-
 // "What was that one site..."
 // Let's save some urls and titles
 // - Antti-Ville Jokela
-func saveUrl(url, file string) string {
+func saveURL(url string) string {
 	// First, let's get that title
 	if len(url) < 2 {
 		return "No url found"
@@ -115,10 +106,10 @@ func saveUrl(url, file string) string {
 	url = strings.Trim(url, " ")
 	title := fetchTitle(url)
 
-	f, err := os.OpenFile(file, os.O_APPEND|os.O_WRONLY, 0600)
+	f, err := os.OpenFile(savedURLs, os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		stderr(err)
-		return "Failed to open file: " + file
+		return "Failed to open file: " + savedURLs
 	}
 	defer f.Close()
 

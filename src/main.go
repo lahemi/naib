@@ -7,7 +7,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -49,6 +48,13 @@ type MsgLine struct {
 	Nick, Cmd, Target, Msg string
 }
 
+func (ml MsgLine) isCmd() bool {
+	if strings.HasPrefix(ml.Msg, cmdPrefix) {
+		return true
+	}
+	return false
+}
+
 type DBFields struct {
 	url, title string
 	timestamp  int64
@@ -81,47 +87,27 @@ func handleBotCmds(s string) {
 	}
 	ml := splitMsgLine(s)
 
-	if ml.Nick == overlord && ml.Msg == cmdPrefix+"die" {
-		sendToCan(ml.Target, DIED.Pick())
-		// No harm done even though we use this - it's just a little
-		// silly thing that makes it usually possible for the bot
-		// to send a `dying` emoticon to the `killer` before QUITting.
-		time.Sleep(time.Duration(1) * time.Second)
-		writechan <- "QUIT"
-		os.Exit(0)
-	}
+	switch ml.isCmd() {
+	case true:
+		var (
+			linest = ml.Msg[len(cmdPrefix):]
+			ind    = strings.Index(linest, " ")
+			cmd    string
+			cargs  string
+		)
 
-	switch {
-	case strings.HasPrefix(ml.Msg, cmdPrefix):
-		linest := ml.Msg[len(cmdPrefix):]
-		switch {
-		case linest == "hello":
-			sendToCan(ml.Target, HELLO.Pick())
-		case linest == "emote":
-			sendToCan(ml.Target, EMOTES.Pick())
-		case linest == "nope":
-			sendToCan(ml.Target, NOPES.Pick())
-		case strings.HasPrefix(linest, "fortune"):
-			fort := lineWithOptionalMatch(fortuneFile, linest[7:])
-			if fort != "" {
-				sendToCan(ml.Target, fort)
-			}
-		case strings.HasPrefix(linest, "epigram"):
-			epigram := lineWithOptionalMatch(epiFile, linest[7:])
-			if epigram != "" {
-				sendToCan(ml.Target, epigram)
-			}
-		case strings.HasPrefix(linest, "callang"):
-			out := doCallang(linest[7:])
-			if out != "" {
-				sendToCan(ml.Target, out)
-			}
-		case strings.HasPrefix(linest, "save"):
-			out := saveUrl(linest[4:], savedURLs)
-			if out != "" {
-				stdout(out)
-			}
+		if ind == -1 {
+			cmd = linest
+		} else {
+			cmd = linest[:ind]
+			cargs = linest[ind+1:]
 		}
+
+		// See cmds.go
+		if c, ok := CMDS[cmd]; ok {
+			c(ml, cargs)
+		}
+
 	default:
 		if !strings.Contains(ml.Msg, "http") {
 			return
