@@ -104,7 +104,22 @@ func handleBotCmds(s string) {
 
 		// See cmds.go
 		if c, ok := CMDS[cmd]; ok {
-			c(ml, cargs)
+			switch cmd {
+			case "die":
+				c.(func(MsgLine))(ml)
+
+			case "hello", "emote", "nope":
+				sendToCan(ml.Target, c.(func() string)())
+
+			case "fortune", "epigram", "callang":
+				rv := c.(func(string) string)(cargs)
+				if rv != "" {
+					sendToCan(ml.Target, rv)
+				}
+
+			case "save":
+				c.(func(string))(cargs)
+			}
 		}
 
 	default:

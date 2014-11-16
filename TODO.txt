@@ -13,6 +13,10 @@ urlsaver:
 
 
 
+commandline option for changing the dataDir
+
+
+
 init(), check if files exist, if not, generate them             done
 
 
@@ -20,8 +24,8 @@ start-up config file                                            done
 
 
 continue the interactive mode
-    need to use the CMDS map for looking up commands
-    change from parens to stack         done
+    need to use the CMDS map for looking up commands            done
+    change from parens to stack                                 done
 
 
 ignore reserved urls
@@ -33,18 +37,17 @@ services are running(pastecan,filecan,fserve,datacan?)
 
 user privileges
 
-
-Sidenote:
-    A massive datacollection bot,
-    which just joins to a plethora
-    of channels and collects all them data.
-
-
-
 Maybe ?
 privileges:
     0:  overlord
     1:  privileged
     2:  buorgeois
     3:  pauper
+
+
+
+Sidenote:
+    A massive datacollection bot,
+    which just joins to a plethora
+    of channels and collects all them data.
 

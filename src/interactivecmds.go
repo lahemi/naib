@@ -39,13 +39,19 @@ func doCmd(cmd string, sstack *stack.Stack) {
 			stderr(err)
 			return
 		}
-		switch strarg.(string) {
-		case "hello":
-			sstack.Push(HELLO.Pick())
-		case "emote":
-			sstack.Push(EMOTES.Pick())
-		case "nope":
-			sstack.Push(NOPES.Pick())
+		switch arg := strarg.(string); arg {
+		case "hello", "emote", "nope":
+			fn := CMDS[arg].(func() string)
+			sstack.Push(fn())
+
+		case "fortune", "epigram", "callang":
+			cargs, err := sstack.PopE()
+			if err != nil {
+				stderr(err)
+				return
+			}
+			fn := CMDS[arg].(func(string) string)
+			sstack.Push(fn(cargs.(string)))
 		}
 	}
 }
