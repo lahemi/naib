@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+// interface{} makes using these a bit more verbose,
+// what with all the type assertions, but on the other
+// hand, now it's easier to use same stuff for commands
+// coming from both IRC and interactive cmdline mode.
 var CMDS = map[string]interface{}{
 	"die": func(ml MsgLine) {
 		if ml.Nick == overlord {

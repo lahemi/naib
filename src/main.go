@@ -2,13 +2,10 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
 	"net"
 	"os"
 	"regexp"
 	"strings"
-
-	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/lahemi/stack"
 )
@@ -52,12 +49,6 @@ func (ml MsgLine) isCmd() bool {
 		return true
 	}
 	return false
-}
-
-type DBFields struct {
-	url, title string
-	timestamp  int64
-	category   string
 }
 
 func splitMsgLine(l string) MsgLine {
@@ -205,33 +196,8 @@ func init() {
 		}
 	}
 
-	if _, err := os.Stat(dbFile); err != nil {
-		db, err := sql.Open("sqlite3", dbFile)
-		if err != nil {
-			die("Failed to create db file: " + dbFile)
-		}
-		defer db.Close()
-		if _, err = db.Exec(`
-            CREATE TABLE IF NOT EXISTS links (
-                id INTEGER NOT NULL PRIMARY KEY,
-                url TEXT NOT NULL,
-                title TEXT,
-                timestamp INTEGER NOT NULL, -- UNIX timestamp
-                category TEXT,
-                FOREIGN KEY(category) REFERENCES categories(category)
-            );
-            CREATE TABLE IF NOT EXISTS categories (
-                category TEXT PRIMARY KEY
-            );
-            INSERT INTO categories VALUES('music');
-            INSERT INTO categories VALUES('img');
-            INSERT INTO categories VALUES('lulz');
-            INSERT INTO categories VALUES('info');
-            INSERT INTO categories VALUES('blank'); -- for no category
-        `); err != nil {
-			die("Failed to execute SQLite3.")
-		}
-	}
+	// See dbactions.go
+	setupDB()
 }
 
 func main() {

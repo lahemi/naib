@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,8 +11,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func clock() string {
@@ -160,43 +157,4 @@ func fetchTitle(msgWord string) string {
 		stdout("No title found")
 		return ""
 	}
-}
-
-func saveLinksToDB(fields DBFields) {
-	// Pretty funky, pattern matching-like.
-	switch "" {
-	case fields.url:
-		stderr("No url to save to DB.")
-		return
-	case fields.title:
-		fields.title = "blank"
-	case fields.category:
-		fields.category = "blank"
-	}
-
-	db, err := sql.Open("sqlite3", dbFile)
-	if err != nil {
-		stderr("Failed to open the DB.")
-		return
-	}
-	defer db.Close()
-
-	fields.timestamp = int64(time.Now().Unix())
-
-	stmt, err := db.Prepare(`
-        INSERT INTO links(url, title, timestamp, category)
-        VALUES(?, ?, ?, ?)
-    `)
-	if err != nil {
-		stderr("Failed to prepare SQL statement with error:", err)
-		return
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(fields.url, fields.title, fields.timestamp, fields.category)
-	if err != nil {
-		stderr("Failed to write to DB.")
-		return
-	}
-	stdout(fields.url + " saved to DB.")
 }
