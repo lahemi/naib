@@ -205,6 +205,11 @@ func init() {
 		}
 	}
 
+	switch "" {
+	case nick, server, port, overlord, cmdPrefix, IRCCmdPrefix:
+		die("Missing mandatory configurations.")
+	}
+
 	// See dbactions.go
 	setupDB()
 }
