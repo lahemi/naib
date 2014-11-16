@@ -21,8 +21,6 @@ var (
 	)
 	titlerex = regexp.MustCompile(`(?i:<title>(.*)</title>)`)
 
-	interactCmdPrefix = "("
-
 	dataDir = os.Getenv("HOME") + "/.crude"
 
 	startUpConfigFile = dataDir + "/naib.conf"
@@ -37,6 +35,7 @@ var (
 	server         string
 	port           string
 	cmdPrefix      string
+	IRCCmdPrefix   string
 	channelsToJoin []string
 )
 
@@ -130,7 +129,7 @@ func handleBotCmds(s string) {
 
 // See `interactivecmds.go`
 func handleInteractiveCmds(cmdline string) {
-	eval(parse(cmdline))
+	parseEtEval(cmdline)
 }
 
 func init() {
@@ -175,6 +174,9 @@ func init() {
 
 			case "commandPrefix":
 				cmdPrefix = mandatoryConf(v)
+
+			case "IRCCmdPrefix":
+				IRCCmdPrefix = mandatoryConf(v)
 
 			case "channels":
 				for {
@@ -270,10 +272,10 @@ func main() {
 		}
 		inp := input[:len(input)-1]
 		switch {
-		case strings.HasPrefix(inp, interactCmdPrefix):
-			handleInteractiveCmds(inp)
+		case strings.HasPrefix(inp, IRCCmdPrefix):
+			writechan <- inp[len(IRCCmdPrefix):]
 		default:
-			writechan <- inp
+			handleInteractiveCmds(inp)
 		}
 	}
 }

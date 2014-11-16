@@ -11,91 +11,96 @@ var (
 	fetchTitleState = true
 )
 
-// Change this to use the map in cmds.go
-func doCmd(cmd string, args []string) string {
+// Change this to use the map in cmds.go, somehow.
+func doCmd(cmd string, sstack *stack.Stack) {
 	switch cmd {
 	case "toggleTitleFetch":
 		fetchTitleState = !fetchTitleState
+
 	case "println":
-		fmt.Println(args)
+		fmt.Println(sstack)
+
 	case "send":
-		sendToCan(args[0], strings.Join(args[1:], " "))
+		chanarg, err := sstack.PopE()
+		if err != nil {
+			stderr(err)
+			return
+		}
+		strarg, err := sstack.PopE()
+		if err != nil {
+			stderr(err)
+			return
+		}
+		sendToCan(chanarg.(string), strarg.(string))
+
 	case "cmd":
-		switch {
-		case args[0] == "hello":
-			return HELLO.Pick()
-		case args[0] == "emote":
-			return EMOTES.Pick()
-		case args[0] == "nope":
-			return NOPES.Pick()
+		strarg, err := sstack.PopE()
+		if err != nil {
+			stderr(err)
+			return
+		}
+		switch strarg.(string) {
+		case "hello":
+			sstack.Push(HELLO.Pick())
+		case "emote":
+			sstack.Push(EMOTES.Pick())
+		case "nope":
+			sstack.Push(NOPES.Pick())
 		}
 	}
-	return ""
 }
 
-func parse(text string) (ret []string) {
-	var (
-		spl = strings.Split(text, "") // for utf-8 chars
-
-		sexpS = "("
-		sexpE = ")"
-		buf   string
+func parseEtEval(text string) (ret []string) {
+	const (
+		RD = iota
+		STR
 	)
+	var (
+		spl = strings.Split(text, "") // for UTF-8
+
+		stringmarker = "`"
+		sstack       = stack.Stack{}
+		buf          string
+		state        = RD
+	)
+	spl = append(spl, " ") // A "terminating" whitespace.
 
 	for i := 0; i < len(spl); i++ {
 		c := spl[i]
-		switch {
-		case isWhite(c) && buf != "":
-			ret = append(ret, buf)
-			buf = ""
-		case isWhite(c):
-		case c == sexpS || c == sexpE:
-			if buf != "" {
-				ret = append(ret, buf)
+		switch state {
+		case RD:
+			switch {
+			case isWhite(c) && buf == "":
+
+			case c == stringmarker:
+				state = STR
 				buf = ""
+
+			case isWhite(c) && buf != "":
+				doCmd(buf, &sstack)
+				buf = ""
+
+			default:
+				buf += c
 			}
-			ret = append(ret, c)
-		default:
-			buf += c
+
+		case STR:
+			switch {
+			// So you can use the `stringmarker` in a string.
+			case i < len(spl)-1 && c == `\` && spl[i+1] == stringmarker:
+				i++
+				continue
+
+			case c == stringmarker:
+				sstack.Push(buf)
+				buf = ""
+				state = RD
+
+			default:
+				buf += c
+			}
 		}
 	}
 
 	return
-}
-
-// Need to be rewritten due to silly, unclear and fragile code.
-func eval(ss []string) {
-	var (
-		sexpS     = "("
-		sexpE     = ")"
-		last_expr string
-
-		cmd    string
-		args   []string
-		istack = stack.Stack{}
-	)
-
-	for i := 0; i < len(ss); i++ {
-		s := ss[i]
-		switch {
-		case s == sexpS:
-			last_expr = sexpS
-			istack.Push(i)
-		case s == sexpE && last_expr == sexpS:
-			m, e := istack.PopE()
-			if e != nil {
-				break
-			}
-			n := m.(int)
-			cmd = ss[n+1]
-			args = ss[n+2 : i]
-			r := doCmd(cmd, args)
-			ss = ss[:n+1]
-			if r != "" {
-				ss[n] = r
-			}
-			i = 0
-			ss = append(ss, ")")
-		}
-	}
 }

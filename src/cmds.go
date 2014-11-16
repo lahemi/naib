@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Change to return string and handle sendToCan elsewhere ?
 var CMDS = map[string]func(MsgLine, string){
 	"die": func(ml MsgLine, cargs string) {
 		if ml.Nick == overlord {

@@ -20,7 +20,8 @@ start-up config file                                            done
 
 
 continue the interactive mode
-    it needs to use the CMDS map for looking up commands
+    need to use the CMDS map for looking up commands
+    change from parens to stack         done
 
 
 ignore reserved urls
