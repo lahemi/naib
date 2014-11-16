@@ -154,3 +154,7 @@ WinErr: 001 Windows loaded - System in danger
 WinErr: 003 Dynamic linking error - Your mistake is now in every file
 go fmt or go away.
 Sometimes, re-inventing the wheel helps you understand how the wheel was made in the first place.
+True freedom is embracing the inevitable entropy that ends the folly of civilization.
+You're a Jehova's witness? Of what is Jehova accused?
+The plague has been cancelled due to illness.
+If I meet the man of my dreams, I hope he doesn't know about my dreams.
