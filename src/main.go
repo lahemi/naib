@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"net"
 	"os"
 	"regexp"
@@ -18,14 +19,12 @@ var (
 	)
 	titlerex = regexp.MustCompile(`(?i:<title>(.*)</title>)`)
 
-	dataDir = os.Getenv("HOME") + "/.crude"
-
-	startUpConfigFile = dataDir + "/naib.conf"
-
-	fortuneFile = dataDir + "/fortunes.txt"
-	epiFile     = dataDir + "/epigrams.txt"
-	savedURLs   = dataDir + "/savedURLs.txt"
-	dbFile      = dataDir + "/links.db"
+	dataDir           string
+	startUpConfigFile string
+	fortuneFile       string
+	epiFile           string
+	savedURLs         string
+	dbFile            string
 
 	overlord       string
 	nick           string
@@ -139,6 +138,16 @@ func handleInteractiveCmds(cmdline string) {
 }
 
 func init() {
+	flag.StringVar(&dataDir, "datadir", os.Getenv("HOME")+"/.crude",
+		"Directory where to look for and place configs and other datafiles.")
+	flag.Parse()
+
+	startUpConfigFile = dataDir + "/naib.conf"
+	fortuneFile = dataDir + "/fortunes.txt"
+	epiFile = dataDir + "/epigrams.txt"
+	savedURLs = dataDir + "/savedURLs.txt"
+	dbFile = dataDir + "/links.db"
+
 	if fi, err := os.Stat(dataDir); err != nil {
 		if err := os.MkdirAll(dataDir, 0777); err != nil {
 			die("Unable to create " + dataDir)
