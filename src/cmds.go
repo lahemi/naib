@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -42,9 +43,10 @@ var CMDS = map[string]interface{}{
 
 	// Silly and incomplete, feel free to remove.
 	// Uses https://github.com/lahemi/gochunks/tree/master/callang
-	"callang": func(ml MsgLine, cargs string) string {
+	"callang": func(cargs string) string {
 		out, err := exec.Command("callang", "-s", cargs).Output()
 		if err != nil {
+			stderr(err)
 			return ""
 		}
 		return string(out)
@@ -54,5 +56,31 @@ var CMDS = map[string]interface{}{
 		if out := saveURL(cargs); out != "" {
 			stdout(out)
 		}
+	},
+
+	// Uses github.com/lahemi/portfinder
+	// Add some kind of search or alias thing for these ?
+	"services": func(cargs string) string {
+		if cargs == "" {
+			cargs = "pastecan filecan datacan fserve"
+		}
+		for _, s := range strings.Split(cargs, " ") {
+			switch s {
+			case "pastecan", "filecan", "datacan", "fserve":
+			default:
+				stderr("Illegal argument to `services`.")
+				return ""
+			}
+		}
+		// silence and tolerate erroneous output, do not show the PID
+		cargs = "-s -t -n " + cargs
+		out, err := exec.Command("portfinder", strings.Split(cargs, " ")...).Output()
+		if err != nil {
+			stderr("portfinder failed with:", err)
+			return ""
+		}
+		sout := string(out)
+		replaceAmount := strings.Count(sout, "\n") - 1
+		return strings.Replace(sout, "\n", " | ", replaceAmount)
 	},
 }

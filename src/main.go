@@ -101,7 +101,7 @@ func handleBotCmds(s string) {
 			case "hello", "emote", "nope":
 				sendToCan(ml.Target, c.(func() string)())
 
-			case "fortune", "epigram", "callang":
+			case "fortune", "epigram", "callang", "services":
 				rv := c.(func(string) string)(cargs)
 				if rv != "" {
 					sendToCan(ml.Target, rv)

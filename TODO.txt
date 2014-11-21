@@ -32,7 +32,7 @@ ignore reserved urls
 
 
 command to show in which port
-services are running(pastecan,filecan,fserve,datacan?)
+services are running(pastecan,filecan,fserve,datacan?)          done
 
 
 user privileges
